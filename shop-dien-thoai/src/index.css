@@ -1,0 +1,50 @@
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  font-size: 1.6rem;
+}
+.slick-slide > div {
+  margin: 0 10px; /* Cách mỗi bên 10px, tổng giữa 2 ảnh là 20px */
+}
+
+/* Đảm bảo hình ảnh bo góc hoạt động tốt */
+.slick-list {
+  margin: 0 -10px; /* Bù lại lề để slider không bị lệch trái/phải */
+}
+/* 1. Ẩn mũi tên mặc định của thư viện Slick */
+.slick-prev:before,
+.slick-next:before {
+  display: none !important;
+}
+.slick-dots li button:before {
+  font-size: 15px !important; /* Tăng cái này thì dấu chấm mới to ra */
+  line-height: 15px !important; /* Phải bằng với height của button để nó nằm giữa */
+  width: 30px !important;
+  height: 30px !important;
+}
+/* 2. Đảm bảo nút của mình là Flexbox để icon nằm chính giữa */
+.slick-prev,
+.slick-next {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+/* 3. Chỉnh lại vị trí của các dấu chấm (Dots) cho đẹp */
+.slick-dots {
+  bottom: 10px !important;
+}
+
+.ant-checkbox-wrapper {
+  font-size: 1.6rem; /* Chỉnh cỡ chữ ở đây */
+  color: var(--text-color);
+}
