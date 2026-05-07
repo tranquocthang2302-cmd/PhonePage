@@ -21,6 +21,7 @@ import {
   WrapperInput,
   WrapperButtonComponent,
   WrapperUploadFile,
+  AvatarPreview,
 } from "./style";
 
 function ProfilePage() {
@@ -33,7 +34,6 @@ function ProfilePage() {
   const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState("");
 
-  // --- 1. STATE QUẢN LÝ LỖI (Dành cho Validate) ---
   const [errors, setErrors] = useState({
     email: "",
     name: "",
@@ -67,79 +67,52 @@ function ProfilePage() {
 
   useEffect(() => {
     if (isSuccess) {
-      message.success("Đã cập nhật thông tin");
+      message.success("Cập nhật thông tin thành công!");
       handleGetDetailUser(user?.id, user?.access_token);
     } else if (isError) {
-      message.error("Cập nhật thất bại");
+      message.error("Có lỗi xảy ra khi cập nhật!");
     }
   }, [isSuccess, isError, handleGetDetailUser, user?.id, user?.access_token]);
 
-  // --- 2. HÀM VALIDATE LOGIC ---
   const validate = (nameField, value) => {
     let errorMessage = "";
-
-    // Kiểm tra không được để trống chung cho các trường
     if (!value && nameField !== "avatar") {
-      errorMessage = "Trường này không được để trống";
+      errorMessage = "Thông tin này là bắt buộc";
     } else {
-      // Kiểm tra Email
       if (nameField === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-          errorMessage = "Định dạng email không hợp lệ";
-        }
+        if (!emailRegex.test(value))
+          errorMessage = "Email không đúng định dạng";
       }
-      // Kiểm tra Số điện thoại (Phải là 10 số)
       if (nameField === "phone") {
         const phoneRegex = /^\d{10}$/;
-        if (!phoneRegex.test(value)) {
-          errorMessage = "Số điện thoại phải có đúng 10 chữ số";
-        }
+        if (!phoneRegex.test(value))
+          errorMessage = "Số điện thoại phải có 10 số";
       }
     }
-
     setErrors((prev) => ({ ...prev, [nameField]: errorMessage }));
     return errorMessage === "";
   };
 
-  // --- 3. EVENT HANDLERS ---
-  const handleUpdate = () => {
-    // Validate tất cả trước khi submit
-    const isNameValid = validate("name", name);
-    const isEmailValid = validate("email", email);
-    const isPhoneValid = validate("phone", phone);
-    const isAddressValid = validate("address", address);
+  const handleUpdate = (field) => {
+    const fieldValues = { name, email, phone, address };
+    const isValid = validate(field, fieldValues[field]);
 
-    if (isNameValid && isEmailValid && isPhoneValid && isAddressValid) {
+    if (isValid) {
       mutation.mutate({
         id: user?.id,
-        email,
-        name,
-        phone,
-        address,
-        avatar,
+        [field]: fieldValues[field],
         access_token: user?.access_token,
       });
-    } else {
-      message.error("Vui lòng kiểm tra lại các thông tin nhập liệu");
     }
   };
 
-  const handleOnchangeName = (e) => {
-    setName(e.target.value);
-    validate("name", e.target.value);
-  };
-  const handleOnchangeEmail = (e) => {
-    setEmail(e.target.value);
-    validate("email", e.target.value);
-  };
-  const handleOnchangePhone = (e) => {
-    setPhone(e.target.value);
-    validate("phone", e.target.value);
-  };
-  const handleOnchangeAddress = (e) => {
-    setAddress(e.target.value);
-    validate("address", e.target.value);
+  const handleUpdateAvatar = () => {
+    mutation.mutate({
+      id: user?.id,
+      avatar,
+      access_token: user?.access_token,
+    });
   };
 
   const handleOnchangeAvatar = async ({ fileList }) => {
@@ -155,142 +128,105 @@ function ProfilePage() {
   return (
     <WrapperProfile>
       <WrapperConTainer>
-        <WrapperHeader style={{ textAlign: "center" }}>
-          Thông tin người dùng
-        </WrapperHeader>
+        <WrapperHeader>Hồ Sơ Cá Nhân</WrapperHeader>
         <Loading isLoading={isPending}>
           <WrapperContentProfile>
-            {/* Trường Name */}
-            <WrapperInput>
-              <WrapperLabel htmlFor="name">Name</WrapperLabel>
-              <div
-                style={{ flex: 1, display: "flex", flexDirection: "column" }}
-              >
-                <InputFormComponent
-                  id="name"
-                  value={name}
-                  onChange={handleOnchangeName}
-                  style={{ borderColor: errors.name ? "red" : "#d9d9d9" }}
-                />
-                {errors.name && (
-                  <span style={{ color: "red", fontSize: "12px" }}>
-                    {errors.name}
-                  </span>
-                )}
-              </div>
-              <WrapperButtonComponent onClick={handleUpdate}>
-                Cập nhật
-              </WrapperButtonComponent>
-            </WrapperInput>
-
-            {/* Trường Email */}
-            <WrapperInput>
-              <WrapperLabel htmlFor="email">Email</WrapperLabel>
-              <div
-                style={{ flex: 1, display: "flex", flexDirection: "column" }}
-              >
-                <InputFormComponent
-                  id="email"
-                  value={email}
-                  onChange={handleOnchangeEmail}
-                  style={{ borderColor: errors.email ? "red" : "#d9d9d9" }}
-                />
-                {errors.email && (
-                  <span style={{ color: "red", fontSize: "12px" }}>
-                    {errors.email}
-                  </span>
-                )}
-              </div>
-              <WrapperButtonComponent onClick={handleUpdate}>
-                Cập nhật
-              </WrapperButtonComponent>
-            </WrapperInput>
-
-            {/* Trường Phone */}
-            <WrapperInput>
-              <WrapperLabel htmlFor="phone">Phone</WrapperLabel>
-              <div
-                style={{ flex: 1, display: "flex", flexDirection: "column" }}
-              >
-                <InputFormComponent
-                  id="phone"
-                  value={phone}
-                  onChange={handleOnchangePhone}
-                  style={{ borderColor: errors.phone ? "red" : "#d9d9d9" }}
-                />
-                {errors.phone && (
-                  <span style={{ color: "red", fontSize: "12px" }}>
-                    {errors.phone}
-                  </span>
-                )}
-              </div>
-              <WrapperButtonComponent onClick={handleUpdate}>
-                Cập nhật
-              </WrapperButtonComponent>
-            </WrapperInput>
-
-            {/* Trường Address */}
-            <WrapperInput>
-              <WrapperLabel htmlFor="address">Address</WrapperLabel>
-              <div
-                style={{ flex: 1, display: "flex", flexDirection: "column" }}
-              >
-                <InputFormComponent
-                  id="address"
-                  value={address}
-                  onChange={handleOnchangeAddress}
-                  style={{ borderColor: errors.address ? "red" : "#d9d9d9" }}
-                />
-                {errors.address && (
-                  <span style={{ color: "red", fontSize: "12px" }}>
-                    {errors.address}
-                  </span>
-                )}
-              </div>
-              <WrapperButtonComponent onClick={handleUpdate}>
-                Cập nhật
-              </WrapperButtonComponent>
-            </WrapperInput>
-
-            {/* Trường Avatar */}
-            <WrapperInput>
-              <WrapperLabel htmlFor="avatar">Avatar</WrapperLabel>
-              <div
-                style={{
-                  width: "400px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+            {/* Ảnh đại diện */}
+            <WrapperInput style={{ alignItems: "center" }}>
+              <WrapperLabel>Ảnh đại diện</WrapperLabel>
+              <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
                 <WrapperUploadFile
                   onChange={handleOnchangeAvatar}
                   maxCount={1}
                   beforeUpload={() => false}
                   showUploadList={false}
                 >
-                  <Button style={{ width: "300px" }} icon={<UploadOutlined />}>
-                    Select File
-                  </Button>
+                  <Button icon={<UploadOutlined />}>Chọn ảnh mới</Button>
                 </WrapperUploadFile>
-                {avatar && (
-                  <img
-                    src={avatar}
-                    style={{
-                      height: "60px",
-                      width: "60px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      marginLeft: "40px",
-                    }}
-                    alt="avatar"
-                  />
-                )}
+                {avatar && <AvatarPreview src={avatar} alt="avatar" />}
               </div>
-              <WrapperButtonComponent onClick={handleUpdate}>
+              <WrapperButtonComponent onClick={handleUpdateAvatar}>
                 Cập nhật
               </WrapperButtonComponent>
             </WrapperInput>
+
+            {/* Các trường thông tin */}
+            {[
+              {
+                id: "name",
+                label: "Họ và tên",
+                value: name,
+                onChange: (e) => {
+                  setName(e.target.value);
+                  validate("name", e.target.value);
+                },
+              },
+              {
+                id: "email",
+                label: "Địa chỉ Email",
+                value: email,
+                onChange: (e) => {
+                  setEmail(e.target.value);
+                  validate("email", e.target.value);
+                },
+              },
+              {
+                id: "phone",
+                label: "Số điện thoại",
+                value: phone,
+                onChange: (e) => {
+                  setPhone(e.target.value);
+                  validate("phone", e.target.value);
+                },
+              },
+              {
+                id: "address",
+                label: "Địa chỉ nhận hàng",
+                value: address,
+                onChange: (e) => {
+                  setAddress(e.target.value);
+                  validate("address", e.target.value);
+                },
+              },
+            ].map((item) => (
+              <WrapperInput key={item.id}>
+                <WrapperLabel htmlFor={item.id}>{item.label}</WrapperLabel>
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "4px",
+                  }}
+                >
+                  <InputFormComponent
+                    id={item.id}
+                    value={item.value}
+                    onChange={item.onChange}
+                    style={{
+                      borderRadius: "8px",
+                      height: "40px",
+                      padding: "10PX",
+                      borderColor: errors[item.id] ? "#ff4d4f" : "#d9d9d9",
+                    }}
+                  />
+                  {errors[item.id] && (
+                    <span
+                      style={{
+                        color: "#ff4d4f",
+                        fontSize: "12px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {errors[item.id]}
+                    </span>
+                  )}
+                </div>
+                <WrapperButtonComponent onClick={() => handleUpdate(item.id)}>
+                  Cập nhật
+                </WrapperButtonComponent>
+              </WrapperInput>
+            ))}
           </WrapperContentProfile>
         </Loading>
       </WrapperConTainer>

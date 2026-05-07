@@ -1,6 +1,63 @@
 const OrderService = require("../service/OrderService");
 const JwtService = require("../service/JwtService");
 
+const fetch = require("node-fetch");
+
+const CLIENT_ID = "CLIENT_ID_SANDBOX";
+const SECRET = "SECRET_SANDBOX";
+
+// 🔑 lấy access token
+const getAccessToken = async () => {
+  const auth = Buffer.from(CLIENT_ID + ":" + SECRET).toString("base64");
+
+  const res = await fetch("https://api-m.sandbox.paypal.com/v1/oauth2/token", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  const data = await res.json();
+  return data.access_token;
+};
+
+// 🔥 capture paypal
+const capturePaypal = async (req, res) => {
+  try {
+    const { orderID } = req.body;
+
+    if (!orderID) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "orderID is required",
+      });
+    }
+
+    const accessToken = await getAccessToken();
+
+    const response = await fetch(
+      `https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderID}/capture`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    const data = await response.json();
+
+    return res.status(200).json(data);
+  } catch (e) {
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message,
+    });
+  }
+};
 const createOrder = async (req, res) => {
   try {
     const {
@@ -122,4 +179,5 @@ module.exports = {
   cancelOrder,
   getAllOrder,
   updateOrder,
+  capturePaypal,
 };

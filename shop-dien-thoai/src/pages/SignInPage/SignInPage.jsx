@@ -104,7 +104,7 @@ function SignInPage() {
   const handleOnchangePassword = (e) => {
     setPassWord(e.target.value);
     validate("password", e.target.value);
-    if (data) mutation.reset(); // Xóa trạng thái lỗi cũ của Backend
+    if (data) mutation.reset();
   };
 
   const handleEyePassword = () => setIsShowPassword(!isShowPassword);

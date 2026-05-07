@@ -364,24 +364,43 @@ const PaymentPage = () => {
                 {payment === "paypal" ? (
                   <PayPalButtons
                     style={{ layout: "vertical" }}
+                    forceReRender={[totalInUSD]} // 🔥 THÊM DÒNG NÀY
                     createOrder={(data, actions) => {
                       return actions.order.create({
                         purchase_units: [
                           {
                             amount: {
+                              currency_code: "USD",
                               value: totalInUSD,
                             },
                           },
                         ],
                       });
                     }}
-                    onApprove={(data, actions) => {
-                      return actions.order.capture().then((details) => {
-                        // Sau khi thanh toán xong trên PayPal thành công
-                        // Gọi hàm đặt hàng ở đây
+                    onApprove={async (data) => {
+                      try {
+                        const res = await fetch(
+                          `${process.env.REACT_APP_API_URL_BACKEND}/order/capture-paypal`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              token: `Bearer ${user?.access_token}`,
+                            },
+                            body: JSON.stringify({
+                              orderID: data.orderID,
+                            }),
+                          },
+                        );
+
+                        const details = await res.json();
+
                         handleAddOrder(details);
                         message.success("Thanh toán PayPal thành công!");
-                      });
+                      } catch (err) {
+                        console.log(err);
+                        message.error("Lỗi capture PayPal");
+                      }
                     }}
                     onError={(err) => {
                       message.error("Lỗi thanh toán PayPal");

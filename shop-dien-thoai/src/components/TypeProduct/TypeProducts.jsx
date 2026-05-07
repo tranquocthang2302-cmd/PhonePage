@@ -3,25 +3,19 @@ import { WrapperProduct } from "./style";
 
 function TypeProduct({ name }) {
   const navigate = useNavigate();
+
   const handleNavigate = (type) => {
     navigate(
       `/product/${type
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/ /g, "_")}`,
-      {
-        state: type,
-      },
+      { state: type },
     );
   };
+
   return (
-    <WrapperProduct
-      onClick={() => {
-        handleNavigate(name);
-      }}
-    >
-      {name}
-    </WrapperProduct>
+    <WrapperProduct onClick={() => handleNavigate(name)}>{name}</WrapperProduct>
   );
 }
 

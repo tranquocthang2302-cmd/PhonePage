@@ -26,11 +26,12 @@ root.render(
         <PayPalScriptProvider
           options={{
             "client-id":
-              "AbEIqDGVFyoJvugrostsrROKy1L5pWFfXZUZBwcHGHhXj8NXA4I0neUZniboR-0a_6xWU3hKwpqzN1gm",
+              "AfaF-0pw7yE6O5pwnfUOS0WS2eLZCN2QGvdOOZpDIt3kUGqquXWYguKI35IHiTh8O9OtiqcJ8AW56Xim",
             currency: "USD",
             locale: "vi_VN",
             vault: false,
             intent: "capture",
+            "disable-funding": "card",
           }}
         >
           <App />

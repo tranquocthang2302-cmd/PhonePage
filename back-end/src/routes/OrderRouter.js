@@ -25,3 +25,7 @@ router.delete(
 );
 router.put("/update/:id", authUserMiddleware, OrderController.updateOrder);
 module.exports = router;
+router.post(
+  "/capture-paypal",
+  OrderController.capturePaypal, // 🔥 thêm dòng này
+);
